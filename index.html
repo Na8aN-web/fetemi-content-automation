@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fetemi Content System</title>
+  <meta name="description" content="Generate, review, and publish content in minutes with the Fetemi Content System." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+</head>
+
+<body>
+
+  <!-- ===================== OVERLAY / SPINNER ===================== -->
+  <div id="overlay" class="overlay hidden">
+    <div class="overlay-box">
+      <div class="spinner"></div>
+      <p id="overlay-text" class="overlay-text">Loading…</p>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 1 — INPUT FORM ===================== -->
+  <div id="screen-1" class="screen active">
+    <div class="screen-inner">
+      <header class="hero">
+        <div class="logo-badge">✦ Fetemi</div>
+        <h1 class="hero-title">Fetemi Content System</h1>
+        <p class="hero-sub">Generate, review, and publish content in minutes.</p>
+      </header>
+
+      <div class="card form-card">
+        <!-- Toggle -->
+        <div class="toggle-group" role="group" aria-label="Input type">
+          <button id="toggle-idea" class="toggle-btn active" data-type="idea">
+            💡 I have a content idea
+          </button>
+          <button id="toggle-url" class="toggle-btn" data-type="url">
+            🔗 I have a URL
+          </button>
+        </div>
+
+        <!-- Idea input -->
+        <div id="input-idea" class="input-section">
+          <label for="content-idea" class="field-label">Enter your content idea</label>
+          <textarea id="content-idea" class="field-textarea"
+            placeholder="e.g. Why Nigerian SMEs are underinvesting in content marketing" rows="5"></textarea>
+        </div>
+
+        <!-- URL input -->
+        <div id="input-url" class="input-section hidden">
+          <label for="content-url" class="field-label">Enter a URL</label>
+          <input id="content-url" type="url" class="field-input" placeholder="https://..." />
+        </div>
+
+        <button id="btn-generate" class="btn btn-primary btn-large">
+          <span>Generate Drafts</span>
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14M12 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 2 — DRAFT REVIEW ===================== -->
+  <div id="screen-2" class="screen hidden">
+    <div class="screen-inner screen-inner--wide">
+      <header class="page-header">
+        <button id="btn-back-s2" class="btn-back">← Back</button>
+        <div>
+          <h2 class="page-title">Review Your Drafts</h2>
+          <p class="page-sub">Pick the angle that fits your audience best.</p>
+        </div>
+      </header>
+
+      <div id="drafts-container" class="drafts-grid">
+        <!-- Draft cards injected by JS -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== SCREEN 3 — PREVIEW & PUBLISH ===================== -->
+  <div id="screen-3" class="screen hidden">
+    <div class="screen-inner screen-inner--wide">
+      <header class="page-header">
+        <button id="btn-back-s3" class="btn-back">← Back</button>
+        <div>
+          <h2 class="page-title">Your Content Is Ready</h2>
+          <p class="page-sub">Review, edit, and publish to all platforms.</p>
+        </div>
+      </header>
+
+      <!-- Platform Tabs -->
+      <div class="tabs-bar" role="tablist">
+        <button class="tab-btn active" data-tab="linkedin" role="tab" aria-selected="true">
+          <span class="tab-icon">in</span> LinkedIn
+        </button>
+        <button class="tab-btn" data-tab="twitter" role="tab" aria-selected="false">
+          <span class="tab-icon">𝕏</span> X (Twitter)
+        </button>
+        <button class="tab-btn" data-tab="email" role="tab" aria-selected="false">
+          <span class="tab-icon">✉</span> Email
+        </button>
+      </div>
+
+      <!-- LinkedIn Panel -->
+      <div id="panel-linkedin" class="tab-panel card">
+        <div class="panel-header">
+          <h3 class="panel-title">LinkedIn Post</h3>
+          <span id="count-linkedin" class="char-count">0 / 3000</span>
+        </div>
+        <textarea id="linkedin-content" class="platform-editor" maxlength="3000"
+          placeholder="Your LinkedIn post will appear here…"></textarea>
+      </div>
+
+      <!-- Twitter Panel -->
+      <div id="panel-twitter" class="tab-panel card hidden">
+        <div class="panel-header">
+          <h3 class="panel-title">X (Twitter) Post</h3>
+          <span id="count-twitter" class="char-count">0 / 280</span>
+        </div>
+        <textarea id="twitter-content" class="platform-editor" maxlength="280"
+          placeholder="Your tweet will appear here…"></textarea>
+      </div>
+
+      <!-- Email Panel -->
+      <div id="panel-email" class="tab-panel card hidden">
+        <h3 class="panel-title">Email</h3>
+        <label class="field-label" for="email-subject">Subject line</label>
+        <input id="email-subject" type="text" class="field-input" placeholder="Email subject…" />
+        <label class="field-label" style="margin-top:1.2rem;" for="email-body">Body</label>
+        <textarea id="email-body" class="platform-editor" placeholder="Email body will appear here…"></textarea>
+      </div>
+
+      <!-- Recipient -->
+      <div class="recipient-section card">
+        <label class="field-label" for="recipient-email">Newsletter recipient email address(es)</label>
+        <input id="recipient-email" type="text" class="field-input" placeholder="e.g. hello@example.com" />
+      </div>
+
+      <!-- Schedule Toggle -->
+      <div class="schedule-section card">
+        <div class="schedule-header">
+          <div>
+            <h3 class="panel-title">Schedule Post</h3>
+            <p class="schedule-sub">Publish now or pick a future date and time</p>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="schedule-toggle" />
+            <span class="toggle-track"></span>
+          </label>
+        </div>
+        <div id="schedule-fields" class="schedule-fields hidden">
+          <div class="schedule-grid">
+            <div class="schedule-field">
+              <label class="field-label" for="schedule-date">Date</label>
+              <input id="schedule-date" type="date" class="field-input" />
+            </div>
+            <div class="schedule-field">
+              <label class="field-label" for="schedule-time">Time</label>
+              <input id="schedule-time" type="time" class="field-input" />
+            </div>
+          </div>
+          <p class="schedule-note" id="schedule-preview"></p>
+        </div>
+      </div>
+
+      <!-- Individual Platform Actions -->
+      <div class="publish-section">
+        <h3 class="publish-section-title">Publish to Platforms</h3>
+        <div class="platform-actions">
+
+          <div class="platform-action-card" id="action-linkedin">
+            <div class="platform-action-info">
+              <span class="platform-action-icon platform-icon-li">in</span>
+              <div>
+                <div class="platform-action-name">LinkedIn</div>
+                <div class="platform-action-status" id="status-linkedin">Ready to publish</div>
+              </div>
+            </div>
+            <button class="btn btn-platform" id="btn-publish-linkedin" data-platform="linkedin">
+              <span id="btn-linkedin-label">Post</span>
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+            </button>
+          </div>
+
+          <div class="platform-action-card" id="action-twitter">
+            <div class="platform-action-info">
+              <span class="platform-action-icon platform-icon-x">𝕏</span>
+              <div>
+                <div class="platform-action-name">X (Twitter)</div>
+                <div class="platform-action-status" id="status-twitter">Ready to publish</div>
+              </div>
+            </div>
+            <button class="btn btn-platform" id="btn-publish-twitter" data-platform="twitter">
+              <span id="btn-twitter-label">Post</span>
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+            </button>
+          </div>
+
+          <div class="platform-action-card" id="action-email">
+            <div class="platform-action-info">
+              <span class="platform-action-icon platform-icon-em">✉</span>
+              <div>
+                <div class="platform-action-name">Email</div>
+                <div class="platform-action-status" id="status-email">Ready to publish</div>
+              </div>
+            </div>
+            <button class="btn btn-platform" id="btn-publish-email" data-platform="email">
+              <span id="btn-email-label">Send</span>
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Publish All -->
+        <div class="action-row">
+          <button id="btn-publish-all" class="btn btn-primary btn-large">
+            <span id="btn-publish-all-label">Publish All Platforms</span>
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Success Banner -->
+      <div id="success-banner" class="success-banner hidden">
+        <span class="success-icon">🎉</span>
+        <span id="success-message">Your content has been published to all platforms.</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+
+</body>
+
+</html>
