@@ -557,7 +557,6 @@ function updatePublishButtonLabels() {
   $('btn-linkedin-label').textContent = scheduled ? 'Schedule' : 'Post';
   $('btn-twitter-label').textContent = scheduled ? 'Schedule' : 'Post';
   $('btn-email-label').textContent = scheduled ? 'Schedule' : 'Send';
-  $('btn-publish-all-label').textContent = scheduled ? 'Schedule All Platforms' : 'Publish All Platforms';
 }
 
 // ── Platform publish state ─────────────────────────────────────
@@ -583,9 +582,7 @@ function markPlatformDone(platform, scheduled = false) {
 
   if (Object.values(publishedPlatforms).every(Boolean)) {
     warnOnLeave = false;
-    $('success-message').textContent = isScheduled()
-      ? 'All platforms scheduled successfully!'
-      : 'Your content has been published to all platforms.';
+    $('success-message').textContent = 'All platforms have been published successfully!';
     $('success-banner').classList.remove('hidden');
     $('success-banner').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
@@ -701,33 +698,6 @@ function buildPayload(platforms = ['linkedin', 'twitter', 'email']) {
       state.isRequesting = false;
     }
   });
-});
-
-// ── Publish All ────────────────────────────────────────────────
-$('btn-publish-all').addEventListener('click', async () => {
-  if (state.isRequesting) return;
-
-  const payload = buildPayload(['linkedin', 'twitter', 'email']);
-  if (!payload) return;
-
-  state.isRequesting = true;
-  $('btn-publish-all').disabled = true;
-  showOverlay(isScheduled() ? 'Scheduling all platforms…' : 'Publishing to all platforms…');
-
-  try {
-    await post(API.publish, payload);
-    hideOverlay();
-    ['linkedin', 'twitter', 'email'].forEach(p => {
-      if (!publishedPlatforms[p]) markPlatformDone(p, isScheduled());
-    });
-  } catch (err) {
-    hideOverlay();
-    console.error('Publish all error:', err);
-    showError(`Something went wrong: ${err.message} — Please try again.`);
-  } finally {
-    state.isRequesting = false;
-    $('btn-publish-all').disabled = false;
-  }
 });
 
 // Back button with confirmation
